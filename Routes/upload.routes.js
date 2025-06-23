@@ -1,4 +1,4 @@
-// routes/upload.js
+// Routes/upload.routes.js
 import express from 'express';
 import multer from 'multer';
 import path from 'path';
@@ -6,10 +6,11 @@ import fs from 'fs';
 
 const router = express.Router();
 
-// Create uploads folder if not exists
+// Ensure uploads folder exists
 const uploadFolder = './uploads';
 if (!fs.existsSync(uploadFolder)) fs.mkdirSync(uploadFolder);
 
+// Multer config
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
     cb(null, uploadFolder);
@@ -22,11 +23,16 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage });
 
+// Upload endpoint
 router.post('/upload', upload.array('images', 6), (req, res) => {
+  // Use full deployed backend domain instead of localhost
+  const baseUrl = 'https://backendmernestate-production-8366.up.railway.app';
+
   const urls = req.files.map(file => ({
-    url: `http://localhost:3000/uploads/${file.filename}`,
+    url: `${baseUrl}/uploads/${file.filename}`,
     name: file.filename,
   }));
+
   res.json({ images: urls });
 });
 
