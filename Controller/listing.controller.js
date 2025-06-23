@@ -2,14 +2,15 @@ import Listing from '../Models/listing.model.js'
 import User from '../Models/user.model.js';
 export const createListing = async (req, res, next) => {
   try {
-    console.log("📩 Incoming data:", req.body);
+    console.log("📩 Incoming createListing data:", req.body);  
     const listing = await Listing.create(req.body);
     return res.status(201).json(listing);
   } catch (error) {
-    console.log("❌ Error creating listing:", error);
+    console.error("❌ createListing ERROR:", error);  
     next(error);
   }
 };
+
 
 
 
