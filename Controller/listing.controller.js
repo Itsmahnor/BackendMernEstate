@@ -1,13 +1,37 @@
 import Listing from '../Models/listing.model.js'
 import User from '../Models/user.model.js';
-export const createListing = async (req,res,next)=>{
-    try {
-       const listing = await Listing.create(req.body);
-       return res.status(201).json(listing)
-    } catch (error) {
-        next(error)
+export const createListing = async (req, res, next) => {
+  try {
+    const {
+      name,
+      description,
+      address,
+      bedrooms,
+      regularPrice,
+      discountPrice,
+      type,
+      parking,
+      furnished,
+      offer,
+      imageUrls,
+      userRef,
+    } = req.body;
+
+    if (
+      !name || !description || !address || !imageUrls?.length || !userRef ||
+      typeof bedrooms !== 'number' || typeof regularPrice !== 'number'
+    ) {
+      return res.status(400).json({ success: false, message: "Missing or invalid fields." });
     }
-}
+
+    const listing = await Listing.create(req.body);
+    return res.status(201).json(listing);
+  } catch (error) {
+    console.log("❌ Error creating listing:", error);
+    next(error);
+  }
+};
+
 
 export const getListing = async (req, res, next) => {
   try {
