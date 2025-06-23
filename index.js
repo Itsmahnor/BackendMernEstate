@@ -36,7 +36,7 @@ mongoose.connect(process.env.MONGO)
 
 // CORS Configuration
 app.use(cors({
-  origin: 'https://mernestateproject.netlify.app/', // Your frontend origin
+  origin: 'https://mernestateproject.netlify.app', // Your frontend origin
   credentials: true, // Allow cookies
 }));
 
