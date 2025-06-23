@@ -47,7 +47,9 @@ app.use("/api/listing", listingRoutes);
 app.use("/api", uploadRouter);
 app.use('/uploads', express.static(path.join(process.cwd(), 'uploads')));
 
-
+app.get('/',(req,res)=>{
+    res.send("Hello Mahnoor")
+})
 
 // Global Error Handler Middleware
 app.use((err, req, res, next) => {
