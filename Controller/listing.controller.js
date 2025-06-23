@@ -2,21 +2,14 @@ import Listing from '../Models/listing.model.js'
 import User from '../Models/user.model.js';
 export const createListing = async (req, res, next) => {
   try {
-    console.log("👉 Received from frontend:", req.body);
-
-    // Optional: check required fields
-    if (!req.body.name || !req.body.userRef) {
-      return res.status(400).json({ success: false, message: "Missing required fields" });
-    }
-
+    console.log("📩 Incoming createListing data:", req.body);  
     const listing = await Listing.create(req.body);
-    res.status(201).json(listing);
+    return res.status(201).json(listing);
   } catch (error) {
-    console.error("❌ Backend error:", error.message);
-    res.status(500).json({ success: false, message: error.message });
+    console.error("❌ createListing ERROR:", error);  
+    next(error);
   }
 };
-
 
 
 
