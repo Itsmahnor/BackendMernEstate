@@ -34,18 +34,11 @@ mongoose.connect(process.env.MONGO)
     console.error("❌ Cannot connect to MongoDB:", err);
   });
 
-
+// CORS Configuration
 app.use(cors({
-  origin: 'https://mernestateproject.netlify.app',
-  credentials: true,
+  origin: 'https://mernestateproject.netlify.app', 
+  credentials: true, // Allow cookies
 }));
-
-// Preflight support
-app.options('*', cors({
-  origin: 'https://mernestateproject.netlify.app',
-  credentials: true,
-}));
-
 
 // API Routes
 app.use("/api/user", userRoutes);

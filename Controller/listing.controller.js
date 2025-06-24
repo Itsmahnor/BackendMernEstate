@@ -1,85 +1,95 @@
-import Listing from '../Models/listing.model.js';
-import User from '../Models/user.model.js';
-import {ErrorHandler} from '../utils/error.js';
+import Listing from '../Models/listing.model.js'
 
-export const createListing = async (req, res, next) => {
-  try {
-    const { name, description, address, regularPrice, discountPrice, bedrooms, furnished, parking, type, offer, imageUrls, userRef } = req.body;
-
-    if (!imageUrls?.length || !userRef) {
-      return res.status(400).json({ message: "Missing images or userRef" });
+import { ErrorHandler } from '../utils/error.js';
+export const createListing = async (req,res,next)=>{
+    try {
+       const listing = await Listing.create(req.body);
+       return res.status(201).json(listing)
+    } catch (error) {
+        next(error)
     }
-
-    const listing = await Listing.create(req.body);
-    return res.status(201).json(listing);
-  } catch (error) {
-    console.error("❌ createListing error:", error);
-    next(error);
-  }
-};
+}
 
 export const getListing = async (req, res, next) => {
   try {
+    console.log("✅ Reached getListing");
+    console.log("req.user.id:", req.user?.id);
+    console.log("req.params.id:", req.params.id);
+
     if (req.user?.id !== req.params.id) {
-      return next(ErrorHandler(401, "You can only view your own listings"));
+      return next(ErrorHandlerHandler(401, "You can only view your own Listing"));
     }
 
     const list = await Listing.find({ userRef: req.params.id });
-    if (!list) return next(ErrorHandler(404, "No listings found"));
+    if (!list) {
+      return next(ErrorHandler(404, "Listing not found"));
+    }
 
-    res.status(200).json(list);
+    return res.status(200).json(list);
   } catch (error) {
+    console.log("❌ Error in getListing:", error);
     next(error);
   }
 };
-
+// In listing.controller.js
 export const deleteListing = async (req, res, next) => {
   try {
     const listing = await Listing.findById(req.params.id);
-    if (!listing) return res.status(404).json({ message: "Listing not found" });
+    if (!listing) {
+      return res.status(404).json({ message: "Listing not found" });
+    }
 
     if (listing.userRef !== req.user.id) {
       return res.status(403).json({ message: "Unauthorized" });
     }
 
     await Listing.findByIdAndDelete(req.params.id);
-    res.status(200).json({ message: "Listing deleted" });
+    return res.status(200).json({ message: "Listing deleted" });
   } catch (err) {
     next(err);
   }
 };
-
 export const updateListing = async (req, res, next) => {
   try {
     const listing = await Listing.findById(req.params.id);
-    if (!listing) return res.status(404).json({ message: "Listing not found" });
+
+    if (!listing) {
+      return res.status(404).json({ message: "Listing not found" });
+    }
 
     if (listing.userRef !== req.user.id) {
       return res.status(403).json({ message: "Unauthorized to edit this listing" });
     }
 
-    const updated = await Listing.findByIdAndUpdate(req.params.id, req.body, { new: true });
-    res.status(200).json(updated);
+    const updated = await Listing.findByIdAndUpdate(req.params.id, req.body, {
+      new: true,
+    });
+
+    return res.status(200).json(updated);
   } catch (error) {
-    console.error("Update error:", error);
+    console.error("Error updating listing:", error);
     next(error);
   }
 };
-
-export const getSingleListing = async (req, res, next) => {
+export const getSingleListing  = async (req, res, next) => {
   try {
     const listing = await Listing.findById(req.params.id);
-    if (!listing) return res.status(404).json({ message: "Listing not found" });
+
+    if (!listing) {
+      return res.status(404).json({ message: "Listing not found" });
+    }
 
     if (listing.userRef !== req.user.id) {
       return res.status(403).json({ message: "Unauthorized" });
     }
 
-    res.status(200).json(listing);
+    return res.status(200).json(listing);
   } catch (error) {
+    console.log(" Error fetching single listing:", error);
     next(error);
   }
 };
+
 
 export const getListings = async (req, res, next) => {
   try {
@@ -87,10 +97,18 @@ export const getListings = async (req, res, next) => {
     const startIndex = parseInt(req.query.startIndex) || 0;
 
     const query = {};
+
+    // Apply filters only if true
     if (req.query.offer === 'true') query.offer = true;
     if (req.query.parking === 'true') query.parking = true;
     if (req.query.furnished === 'true') query.furnished = true;
-    if (req.query.type && req.query.type !== 'all') query.type = req.query.type;
+
+    // Type
+    if (req.query.type && req.query.type !== 'all') {
+      query.type = req.query.type;
+    }
+
+    // Search by name (case-insensitive)
     if (req.query.searchTerm) {
       query.name = { $regex: req.query.searchTerm, $options: 'i' };
     }
@@ -103,7 +121,7 @@ export const getListings = async (req, res, next) => {
       .skip(startIndex)
       .limit(limit);
 
-    res.status(200).json(listings);
+    return res.status(200).json(listings);
   } catch (error) {
     next(error);
   }
