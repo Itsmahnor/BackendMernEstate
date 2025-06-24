@@ -1,14 +1,38 @@
 import Listing from '../Models/listing.model.js'
 
 import { ErrorHandler } from '../utils/error.js';
-export const createListing = async (req,res,next)=>{
-    try {
-       const listing = await Listing.create(req.body);
-       return res.status(201).json(listing)
-    } catch (error) {
-        next(error)
+export const createListing = async (req, res, next) => {
+  try {
+    console.log("📩 Incoming Request Body:", req.body);
+
+    const listing = await Listing.create(req.body);
+
+    return res.status(201).json(listing);
+  } catch (error) {
+    console.error("❌ Error creating listing:", error);
+
+    // 🛑 Handle Duplicate Name Error
+    if (error.code === 11000 && error.keyPattern?.name) {
+      return res.status(400).json({
+        message: 'Listing name already exists. Please choose a unique name.',
+      });
     }
-}
+
+    // 🛑 Handle Validation Errors (missing fields, wrong types, etc.)
+    if (error.name === 'ValidationError') {
+      const messages = Object.values(error.errors).map(err => err.message);
+      return res.status(400).json({
+        message: 'Validation failed.',
+        errors: messages,
+      });
+    }
+
+    // 🛑 Default fallback error
+    return res.status(500).json({
+      message: 'Something went wrong while creating the listing.',
+    });
+  }
+};
 
 export const getListing = async (req, res, next) => {
   try {
