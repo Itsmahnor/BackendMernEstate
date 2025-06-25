@@ -26,7 +26,7 @@ const upload = multer({ storage });
 // Upload endpoint
 router.post('/upload', upload.array('images', 6), (req, res) => {
   // Use full deployed backend domain instead of localhost
-  const baseUrl = 'https://backendmernestate-production-8366.up.railway.app';
+  const baseUrl = 'https://backendmernestate-production.up.railway.app';
 
   const urls = req.files.map(file => ({
     url: `${baseUrl}/uploads/${file.filename}`,
