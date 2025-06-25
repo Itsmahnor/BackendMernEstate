@@ -34,12 +34,12 @@ export const signin = async (req, res, next) => {
     // 🔒 Generate JWT token
     const token = jwt.sign({ id: existingUser._id }, process.env.JWT_SECRET);
 
-    // 🧁 Set cookie
-    res.cookie("access_token", token, {
-      httpOnly: true,
-      sameSite: "lax",
-      secure: false, // change to true in production (https)
-    });
+ 
+res.cookie("access_token", token, {
+  httpOnly: true,
+  sameSite: "None",   // ✅ allow cross-origin cookies
+  secure: true        // ✅ only allow on HTTPS (required by browsers)
+});
 
     // ✅ Return user info
     res.status(200).json({
@@ -68,11 +68,11 @@ export const google = async (req, res) => {
       const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET);
       const { password, ...rest } = user._doc;
 
-      res.cookie("access_token", token, {
-        httpOnly: true,
-        sameSite: "lax",
-        secure: false,
-      }).status(200).json({
+   res.cookie("access_token", token, {
+  httpOnly: true,
+  sameSite: "None",   
+  secure: true
+}).status(200).json({
         success: true,
         user: {
           id: user._id,
@@ -102,11 +102,11 @@ export const google = async (req, res) => {
       const token = jwt.sign({ id: newUser._id }, process.env.JWT_SECRET);
       const { password, ...rest } = newUser._doc;
 
-      res.cookie("access_token", token, {
-        httpOnly: true,
-        sameSite: "lax",
-        secure: false,
-      }).status(200).json({
+   res.cookie("access_token", token, {
+  httpOnly: true,
+  sameSite: "None",   // ✅ allow cross-origin cookies
+  secure: true        // ✅ only allow on HTTPS (required by browsers)
+}).status(200).json({
         success: true,
         user: {
           id: newUser._id,
